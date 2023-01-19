@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
@@ -30,7 +32,7 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final socket = WebSocket(Uri.parse("wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self"));
+  final socket = WebSocket(Uri.parse("wss://stream.binance.com:9443/ws/btcusdt@trade"));
   String guncelFiyat = "0";
   String alisFiyati = "0";
 
@@ -41,12 +43,16 @@ class _HomeViewState extends State<HomeView> {
     listenServer();
   }
 
-  listenServer() {
+  void listenServer() {
     socket.connection.listen((event) {print("Bağlandı: " + event.toString());});
 
     socket.messages.listen((message) {
-      print("Güncel Fiyat: " + message);
-      guncelFiyat = message;
+      Map getData = jsonDecode(message);
+      setState(() {
+        print("Güncel Fiyat: " + getData["p"]);
+        guncelFiyat = getData["p"];
+      });
+
     });
 
   }
@@ -61,7 +67,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Iar Fx"))),
+      appBar: AppBar(title: Center(child: Text("IARFX"))),
       body: Center(
         child:
             Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -112,7 +118,7 @@ class _HomeViewState extends State<HomeView> {
                   onPressed: () {
                     setState(() {
                       alisFiyati = guncelFiyat;
-                      serverAmesajGonder();
+                      //serverAmesajGonder();
 
                     });
                   },
